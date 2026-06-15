@@ -1,11 +1,11 @@
 import streamlit as st
 import requests
 
-# Put your actual Hugging Face token here
-HF_TOKEN = "hf_xxxxxxxxxxxxxxxxxxxxx"
+# ✅ Use a working stable free model
+API_URL = "https://api-inference.huggingface.co/models/distilgpt2"
 
-# Lightweight free model
-API_URL = "https://api-inference.huggingface.co/models/gpt2"
+# ⚠️ Token optional (public models sometimes work without it, but better include)
+HF_TOKEN = "hf_xxxxxxxxxxxxxxxxxxxxx"
 
 headers = {
     "Authorization": f"Bearer {HF_TOKEN}"
@@ -17,39 +17,30 @@ st.set_page_config(
     layout="centered"
 )
 
-st.title("📖 AI Story Generator")
-st.write("Generate creative stories using AI.")
+st.title("📖 AI Story Generator (Free Version)")
+st.write("Generate creative stories using FREE AI model")
 
-story_topic = st.text_input("Story Topic")
+story_topic = st.text_input("Enter Story Topic")
 
 genre = st.selectbox(
     "Genre",
-    [
-        "Adventure",
-        "Fantasy",
-        "Science Fiction",
-        "Horror",
-        "Mystery",
-        "Comedy"
-    ]
+    ["Adventure", "Fantasy", "Science Fiction", "Horror", "Mystery", "Comedy"]
 )
 
 story_length = st.selectbox(
     "Story Length",
-    [
-        "Short",
-        "Medium",
-        "Long"
-    ]
+    ["Short", "Medium", "Long"]
 )
 
+# ✅ SAFE API CALL FUNCTION
 def generate_story(prompt):
+
     try:
         payload = {
             "inputs": prompt,
             "parameters": {
-                "max_new_tokens": 300,
-                "temperature": 0.9,
+                "max_new_tokens": 200,
+                "temperature": 0.8,
                 "do_sample": True
             }
         }
@@ -58,31 +49,39 @@ def generate_story(prompt):
             API_URL,
             headers=headers,
             json=payload,
-            timeout=60
+            timeout=90
         )
 
+        # ✅ Model loading issue fix (VERY IMPORTANT for HF free API)
+        if response.status_code == 503:
+            return "Model is loading... try again in 10-20 seconds ⏳"
+
         if response.status_code != 200:
-            return f"API Error ({response.status_code}): {response.text}"
+            return f"API Error {response.status_code}: {response.text}"
 
         result = response.json()
 
-        if isinstance(result, list):
-            return result[0].get("generated_text", "No story generated.")
+        if isinstance(result, list) and "generated_text" in result[0]:
+            return result[0]["generated_text"]
 
         return str(result)
 
     except requests.exceptions.ConnectionError:
-        return "Connection Error: Unable to connect to Hugging Face API."
+        return "Connection Error ❌ (Internet issue or HF blocked on network)"
 
     except requests.exceptions.Timeout:
-        return "Timeout Error: API took too long to respond."
+        return "Timeout Error ⏳ (API slow response)"
 
     except Exception as e:
         return f"Unexpected Error: {str(e)}"
 
+
+# ✅ UI BUTTON
 if st.button("Generate Story"):
 
-    if story_topic:
+    if not story_topic.strip():
+        st.warning("Please enter a story topic")
+    else:
 
         prompt = f"""
 Write a {story_length} {genre} story.
@@ -90,23 +89,16 @@ Write a {story_length} {genre} story.
 Topic: {story_topic}
 
 Include:
-- Interesting title
+- Title
 - Characters
-- Plot
+- Story Plot
 - Ending
 
-Make it engaging and creative.
+Make it creative and engaging.
 """
 
-        with st.spinner("Generating Story..."):
+        with st.spinner("Generating your story..."):
             story = generate_story(prompt)
 
-        st.subheader("Generated Story")
-        st.text_area(
-            "Story",
-            value=story,
-            height=450
-        )
-
-    else:
-        st.warning("Please enter a topic.")
+        st.subheader("📖 Generated Story")
+        st.text_area("Result", value=story, height=450)
