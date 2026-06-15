@@ -13,7 +13,7 @@ st.set_page_config(
 # ─── Custom CSS ────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Inter:wght@400;500;600&display=swap');
+  URL: https://api-inference.huggingface.co/models/distilgpt2 Token starts with: hf_kUfaw... Attempt 1: Sending request... CONNECTION ERROR: HTTPSConnectionPool(host='api-inference.huggingface.co', port=443): Max retries exceeded with url: /models/distilgpt2 (Caused by NameResolutionError("HTTPSConnection(host='api-inference.huggingface.co', port=443): Failed to resolve 'api-inference.huggingface.co' ([Errno -2] Name or service not known)")) Internet check karo ya firewall/VPN try karo;
 
   html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 
