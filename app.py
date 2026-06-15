@@ -5,7 +5,7 @@ import requests
 HF_TOKEN = "hf_xxxxxxxxxxxxxxxxxxxxx"
 
 # Lightweight free model
-API_URL = "https://api-inference.huggingface.co/models/distilgpt2"
+API_URL = "https://api-inference.huggingface.co/models/gpt2"
 
 headers = {
     "Authorization": f"Bearer {HF_TOKEN}"
@@ -55,10 +55,11 @@ def generate_story(prompt):
         }
 
         response = requests.post(
-            API_URL,
-            headers=headers,
-            json=payload,
-            timeout=60
+    API_URL,
+    headers=headers,
+    json=payload,
+    timeout=120
+)
         )
 
         if response.status_code != 200:
